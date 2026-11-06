@@ -1,0 +1,549 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f0f11">
+<title>もあピックル 組み合わせ</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;700&family=JetBrains+Mono:wght@500;700&family=Zen+Kaku+Gothic+New:wght@500;700&display=swap">
+<style>
+/* Layout: scoreboard-style single screen. Courts stacked as horizontal bands (2 columns at 5+ courts on wide screens), rest strip at the bottom. Single dark graphite look by choice. */
+:root {
+  --bg: #0f0f11;
+  --surface: #17171a;
+  --line: #f5f5f7;
+  --muted: #8e8e93;
+  --dim: #48484d;
+  --pair-a: #0a84ff;
+  --pair-b: #ff453a;
+  --warn: #ffd60a;
+  --ok: #30d158;
+  --edge: rgba(255, 255, 255, .09);
+  --name: #c7c7cc;
+  --ctrl: #1f1f23;
+  --ctrl-edge: #333338;
+  --font-num: "Chakra Petch", "Arial Narrow", "Helvetica Neue", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --font-body: "Zen Kaku Gothic New", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Yu Gothic", sans-serif;
+  color-scheme: dark;
+}
+html, body { height: 100%; margin: 0; }
+body {
+  background-color: var(--bg);
+  background-image: radial-gradient(rgba(255, 255, 255, .045) 1px, transparent 1.2px);
+  background-size: 22px 22px;
+  color: var(--line);
+  font-family: var(--font-body);
+  font-size: 14px;
+  -webkit-text-size-adjust: 100%;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+button, input, select { font: inherit; color: inherit; }
+button:focus-visible, input:focus-visible, select:focus-visible, summary:focus-visible { outline: 2px solid var(--line); outline-offset: 2px; }
+
+.app {
+  position: relative; z-index: 1;
+  height: 100%; height: 100dvh;
+  display: flex; flex-direction: column; gap: 10px;
+  padding-top: max(10px, env(safe-area-inset-top, 0px));
+  padding-bottom: max(10px, env(safe-area-inset-bottom, 0px));
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.mono { font-family: var(--font-mono); text-transform: uppercase; letter-spacing: .14em; }
+
+/* ---------- header ---------- */
+.top { display: flex; align-items: center; gap: 12px 28px; flex-wrap: wrap; padding-bottom: 8px; border-bottom: 1px solid var(--edge); }
+.stat { display: flex; align-items: baseline; gap: 10px; }
+.stat .k { font-size: 12px; color: var(--muted); }
+.stat .v { font-family: var(--font-num); font-weight: 700; font-size: 40px; line-height: 1; font-variant-numeric: tabular-nums; }
+.timer { background: none; border: 0; padding: 0; cursor: pointer; }
+.timer.paused .v { color: var(--muted); }
+.timer.low .v { color: var(--warn); text-shadow: 0 0 16px color-mix(in srgb, var(--warn) 45%, transparent); }
+.timer.done .v { color: var(--pair-b); }
+.legend { display: flex; gap: 18px; font-size: 11px; color: var(--muted); margin-left: auto; }
+.legend span { display: inline-flex; align-items: center; gap: 8px; }
+.legend i { width: 18px; height: 3px; background: var(--c); box-shadow: 0 0 8px var(--c); }
+
+/* ---------- controls ---------- */
+.seg { display: inline-flex; border: 1px solid var(--ctrl-edge); border-radius: 3px; overflow: hidden; }
+.seg button { background: none; border: 0; padding: 6px 12px; cursor: pointer; color: var(--muted); white-space: nowrap; }
+.seg button[aria-pressed="true"] { background: var(--ctrl-edge); color: var(--line); }
+.btn { background: var(--ctrl); border: 1px solid var(--ctrl-edge); border-radius: 3px; padding: 6px 14px; cursor: pointer; white-space: nowrap; }
+.btn:hover:not(:disabled) { border-color: var(--muted); }
+.btn:disabled { opacity: .4; cursor: default; }
+.btn.primary { background: var(--line); color: var(--bg); border-color: var(--line); font-weight: 700; }
+.btn.danger { border-color: color-mix(in srgb, var(--pair-b) 70%, transparent); color: #ff8a82; }
+.btn.sm { padding: 3px 9px; font-size: 12px; }
+.inp {
+  background: #0c0c0e; border: 1px solid var(--ctrl-edge); border-radius: 3px; padding: 7px 10px; min-width: 0;
+}
+.inp::placeholder { color: var(--dim); }
+.inp.no { width: 5.2em; text-align: center; font-family: var(--font-num); font-weight: 700; font-size: 16px; }
+label.fld { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--muted); }
+
+.bar { display: flex; align-items: center; gap: 8px 12px; flex-wrap: wrap; }
+.tabs { display: inline-flex; border: 1px solid var(--ctrl-edge); border-radius: 3px; overflow: hidden; }
+.tabs button { background: none; border: 0; padding: 7px 16px; cursor: pointer; color: var(--muted); font-weight: 700; }
+.tabs button[aria-pressed="true"] { background: var(--ctrl-edge); color: var(--line); }
+.sync { margin-left: auto; font-size: 11px; color: var(--muted); display: inline-flex; align-items: center; gap: 6px; }
+.sync::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--dim); }
+.sync.ok::before { background: var(--ok); box-shadow: 0 0 8px var(--ok); }
+.sync.warn { color: var(--warn); }
+.sync.warn::before { background: var(--warn); }
+
+.view { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 10px; }
+.view.scroll { overflow-y: auto; overflow-x: hidden; padding-bottom: 8px; -webkit-overflow-scrolling: touch; }
+.actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.actions .spacer { flex: 1; }
+.stepper { display: inline-flex; align-items: center; border: 1px solid var(--ctrl-edge); border-radius: 3px; overflow: hidden; }
+.stepper button { background: none; border: 0; padding: 6px 11px; cursor: pointer; font-weight: 700; }
+.stepper output { min-width: 4.6em; text-align: center; font-size: 13px; color: var(--name); }
+
+/* ---------- courts (確定デザイン) ---------- */
+.courts {
+  flex: 1; min-height: 0;
+  display: grid; gap: 10px;
+  grid-auto-flow: column;
+  grid-template-columns: repeat(var(--cols, 1), minmax(0, 1fr));
+  grid-template-rows: repeat(var(--rows, 3), minmax(0, 1fr));
+}
+.court {
+  container-type: size;
+  position: relative;
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  border: 1px solid var(--edge);
+  border-radius: 4px;
+  min-width: 0;
+}
+.court::before, .court::after {
+  content: ""; position: absolute; width: 14px; height: 14px; pointer-events: none;
+  border-color: var(--muted); border-style: solid; opacity: .7;
+}
+.court::before { top: -1px; left: -1px; border-width: 2px 0 0 2px; }
+.court::after { bottom: -1px; right: -1px; border-width: 0 2px 2px 0; }
+.ci {
+  height: 100%;
+  display: grid; align-items: center;
+  grid-template-columns: 12cqw minmax(0, 1fr) 6cqw minmax(0, 1fr);
+  padding-right: 1.6cqw;
+}
+.label {
+  height: 100%;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1cqh;
+  border-right: 1px solid var(--edge);
+  margin-right: 1.6cqw;
+}
+.label .lt { font-size: max(9px, min(9cqh, 1.4cqw)); color: var(--muted); }
+.label .ln { font-family: var(--font-num); font-weight: 700; font-size: min(46cqh, 7cqw); line-height: .9; font-variant-numeric: tabular-nums; }
+.pair {
+  position: relative;
+  height: 86cqh;
+  display: flex; align-items: center; justify-content: space-evenly;
+  border-radius: 3px;
+  border: 1px solid color-mix(in srgb, var(--c) 75%, transparent);
+  background: color-mix(in srgb, var(--c) 9%, var(--surface));
+  box-shadow: 0 0 32px -10px color-mix(in srgb, var(--c) 60%, transparent), inset 0 0 40px -20px color-mix(in srgb, var(--c) 50%, transparent);
+}
+.pair::before {
+  content: ""; position: absolute; left: 0; right: 0; top: 0; height: 3px;
+  background: var(--c); box-shadow: 0 0 10px var(--c);
+}
+.pair .tm {
+  position: absolute; top: 1.2cqh; left: 1cqw;
+  font-size: max(9px, min(7cqh, 1.1cqw)); color: color-mix(in srgb, var(--c) 80%, var(--line));
+}
+.pair.a { --c: var(--pair-a); }
+.pair.b { --c: var(--pair-b); }
+.vs { text-align: center; color: var(--muted); font-size: max(10px, min(10cqh, 1.6cqw)); }
+.p { display: flex; flex-direction: column; align-items: center; min-width: 0; }
+.num {
+  font-family: var(--font-num); font-weight: 700; font-size: min(60cqh, 9.6cqw); line-height: .95;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 0 22px color-mix(in srgb, var(--c, #fff) 45%, transparent);
+}
+.name { font-size: min(14cqh, 2.8cqw); font-weight: 700; color: var(--name); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; min-height: 1.2em; }
+
+.rest {
+  display: flex; align-items: center; gap: 16px;
+  background: var(--surface);
+  border: 1px dashed var(--ctrl-edge);
+  border-radius: 4px; padding: 8px 14px;
+}
+.rest .rl { display: flex; flex-direction: column; gap: 2px; white-space: nowrap; }
+.rest .rl .mono { font-size: 11px; color: var(--muted); }
+.rest .rl b { font-size: 15px; color: var(--name); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px 20px; min-width: 0; }
+.chip { display: flex; flex-direction: column; align-items: center; }
+.chip .num { font-size: 32px; color: var(--line); text-shadow: none; }
+.chip .name { font-size: 13px; }
+/* 休憩の人数に合わせて、番号と名前の大きさを変える（少ないときは大きく） */
+.rest[data-sz="l"] .chip .num { font-size: 48px; } .rest[data-sz="l"] .chip .name { font-size: 17px; } .rest[data-sz="l"] .chips { gap: 8px 30px; }
+.rest[data-sz="m"] .chip .num { font-size: 40px; } .rest[data-sz="m"] .chip .name { font-size: 15px; } .rest[data-sz="m"] .chips { gap: 6px 24px; }
+.rest[data-sz="s"] .chip .num { font-size: 30px; } .rest[data-sz="s"] .chip .name { font-size: 13px; } .rest[data-sz="s"] .chips { gap: 4px 14px; }
+.rest[data-sz="xs"] .chip .num { font-size: 24px; } .rest[data-sz="xs"] .chip .name { font-size: 12px; } .rest[data-sz="xs"] .chips { gap: 2px 12px; }
+
+.empty {
+  flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; text-align: center;
+  border: 1px dashed var(--ctrl-edge); border-radius: 4px; color: var(--muted); padding: 20px;
+}
+.empty .big { font-family: var(--font-num); font-size: 28px; color: var(--name); font-weight: 700; }
+
+/* ---------- panels / forms ---------- */
+.panel {
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  border: 1px solid var(--edge); border-radius: 4px; padding: 14px;
+  display: flex; flex-direction: column; gap: 12px;
+}
+.panel > h2 { margin: 0; font-size: 11px; color: var(--muted); font-weight: 500; }
+.row { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; }
+.note { color: var(--muted); font-size: 12px; line-height: 1.6; margin: 0; }
+.cols2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 10px; align-items: start; }
+
+.addform { display: flex; gap: 8px; align-items: center; }
+.addform .inp.nm { flex: 1; }
+.sug { display: flex; flex-wrap: wrap; gap: 6px; }
+.sug button { background: var(--ctrl); border: 1px solid var(--ctrl-edge); border-radius: 3px; padding: 4px 10px; cursor: pointer; }
+.sug button small { color: var(--muted); margin-left: 6px; font-family: var(--font-mono); }
+.sug button:hover { border-color: var(--muted); }
+
+.summary { display: flex; gap: 18px; flex-wrap: wrap; font-size: 12px; color: var(--muted); }
+.summary b { color: var(--line); font-family: var(--font-num); font-size: 18px; margin-right: 3px; }
+
+.plist { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 360px), 1fr)); gap: 6px; }
+.prow {
+  display: grid; align-items: center; gap: 6px 10px;
+  grid-template-columns: auto 3.2em minmax(0, 1fr) auto;
+  grid-template-areas: "chk no name del" "pr st st st";
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  border: 1px solid var(--edge); border-left: 3px solid var(--ok); border-radius: 4px; padding: 7px 10px;
+}
+.prow.st-rest { border-left-color: var(--warn); }
+.prow.st-rest .pname, .prow.st-rest .pno { opacity: .6; }
+.prow.st-out { border-left-color: var(--dim); }
+.prow.st-out .pname, .prow.st-out .pno { opacity: .35; text-decoration: line-through; }
+.prow .chk { grid-area: chk; display: flex; }
+.prow .chk input { width: 18px; height: 18px; accent-color: var(--line); }
+.pno { grid-area: no; background: none; border: 0; cursor: pointer; font-family: var(--font-num); font-weight: 700; font-size: 24px; text-align: center; padding: 0; }
+.pname { grid-area: name; background: none; border: 0; cursor: pointer; text-align: left; font-weight: 700; font-size: 16px; padding: 2px 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-height: 1.4em; }
+.pname:empty::before { content: "（名前なし）"; color: var(--dim); font-weight: 500; }
+.prow .del { grid-area: del; background: none; border: 0; color: var(--muted); cursor: pointer; font-size: 16px; padding: 2px 6px; }
+.prow .del:hover { color: var(--pair-b); }
+.prow .st { grid-area: st; justify-self: end; }
+.prow .st button { padding: 4px 11px; }
+.prow .pr { grid-area: pr; display: flex; gap: 8px; align-items: baseline; font-size: 11px; color: var(--muted); }
+.prow .pr .tagp { color: var(--pair-a); border: 1px solid color-mix(in srgb, var(--pair-a) 55%, transparent); border-radius: 3px; padding: 0 6px; }
+@media (min-width: 900px) {
+  .prow { grid-template-columns: auto 3.2em minmax(0, 1fr) auto auto; grid-template-areas: "chk no name st del" ". . pr pr pr"; }
+}
+
+details.fold > summary { cursor: pointer; list-style: none; font-size: 11px; color: var(--muted); }
+details.fold > summary::-webkit-details-marker { display: none; }
+details.fold > summary::after { content: " ▾"; }
+details.fold[open] > summary::after { content: " ▴"; }
+.pairs { display: flex; flex-wrap: wrap; gap: 8px; }
+.pairchip { display: inline-flex; align-items: center; gap: 8px; border: 1px solid color-mix(in srgb, var(--pair-a) 55%, transparent); border-radius: 3px; padding: 4px 6px 4px 10px; }
+.pairchip b { font-family: var(--font-num); font-size: 17px; }
+.pairchip small { color: var(--muted); }
+.pairchip.dormant { opacity: .55; }
+.pairbar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; font-size: 12px; color: var(--muted); }
+
+.tablewrap { overflow-x: auto; border: 1px solid var(--edge); border-radius: 4px; }
+table { border-collapse: collapse; width: 100%; background: color-mix(in srgb, var(--surface) 92%, transparent); }
+th, td { padding: 8px 12px; text-align: left; border-bottom: 1px solid var(--edge); white-space: nowrap; }
+th { font-size: 11px; color: var(--muted); font-weight: 500; position: sticky; top: 0; background: #1b1b1f; cursor: pointer; user-select: none; }
+th.r, td.r { text-align: right; }
+td.r { font-family: var(--font-num); font-size: 16px; font-weight: 700; }
+tr:last-child td { border-bottom: 0; }
+td input[type=checkbox] { accent-color: var(--line); width: 16px; height: 16px; }
+
+/* ---------- modal / toast ---------- */
+.modal { position: fixed; inset: 0; z-index: 50; background: rgba(0, 0, 0, .66); display: flex; align-items: center; justify-content: center; padding: 16px; }
+.mbox { width: min(440px, 100%); max-height: 90dvh; overflow: auto; background: #1a1a1d; border: 1px solid var(--ctrl-edge); border-radius: 6px; padding: 18px; display: flex; flex-direction: column; gap: 14px; box-shadow: 0 20px 60px rgba(0,0,0,.6); }
+.mbox h3 { margin: 0; font-size: 16px; }
+.mbox p { margin: 0; color: var(--name); line-height: 1.7; }
+.mbox .mbtns { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; }
+.mbox label.radio { display: flex; gap: 10px; align-items: center; padding: 6px 0; cursor: pointer; }
+.mbox label.radio input { accent-color: var(--line); }
+.toast { position: fixed; left: 50%; top: max(12px, env(safe-area-inset-top, 0px)); transform: translateX(-50%); z-index: 60; background: var(--line); color: var(--bg); padding: 10px 16px; border-radius: 4px; font-weight: 700; max-width: calc(100% - 32px); box-shadow: 0 8px 30px rgba(0,0,0,.5); display: flex; gap: 12px; align-items: center; line-height: 1.5; }
+.toast.bad { background: var(--pair-b); color: #fff; }
+.toast button { background: none; border: 1px solid currentColor; border-radius: 3px; padding: 4px 10px; font-weight: 700; cursor: pointer; white-space: nowrap; color: inherit; }
+
+/* 参加／1回休み／帰宅の、いまの状態をはっきり見せる */
+.prow .st button[aria-pressed="true"] { font-weight: 700; color: var(--bg); }
+.prow .st button[data-v="in"][aria-pressed="true"] { background: var(--ok); }
+.prow .st button[data-v="rest"][aria-pressed="true"] { background: var(--warn); }
+.prow .st button[data-v="out"][aria-pressed="true"] { background: #a1a1a8; }
+.prow .pr .stb { color: var(--warn); font-weight: 700; }
+.prow.st-out .pr .stb { color: var(--name); }
+.sug button.more { color: var(--muted); border-style: dashed; }
+
+/* 操作を隠している間も、「操作を表示」のボタンだけは、同じ場所にはっきり残す */
+body.clean .bar { display: none; }
+body.clean .actions > :not(#cleanBtn) { display: none; }
+body.clean #cleanBtn { margin-left: auto; }
+
+/* ---------- phone ---------- */
+@media (max-width: 720px) {
+  .ci { grid-template-columns: 10cqw minmax(0, 1fr) 4.4cqw minmax(0, 1fr); padding-right: 1.4cqw; }
+  .label { margin-right: 1.4cqw; }
+  .label .lt { font-size: max(8px, min(8cqh, 2.2cqw)); }
+  .label .ln { font-size: min(40cqh, 6.4cqw); }
+  .pair { height: min(86cqh, 36cqw); }
+  .pair .tm { font-size: max(8px, min(7cqh, 2.1cqw)); }
+  .vs { font-size: max(9px, min(10cqh, 2.6cqw)); }
+  .num { font-size: min(60cqh, 12cqw); }
+  .name { font-size: min(14cqh, 3.4cqw); }
+  .app { gap: 6px; padding-top: max(6px, env(safe-area-inset-top, 0px)); padding-bottom: max(6px, env(safe-area-inset-bottom, 0px)); }
+  .top { gap: 4px 16px; padding-bottom: 4px; }
+  .stat .k { font-size: 10px; }
+  .stat .v { font-size: 26px; }
+  .legend { font-size: 9px; gap: 10px; }
+  .courts { gap: 6px; grid-template-columns: minmax(0, 1fr); grid-template-rows: repeat(var(--n, 3), minmax(0, 1fr)); }
+  .court::before, .court::after { width: 9px; height: 9px; }
+  .rest { gap: 10px; padding: 5px 10px; }
+  .rest .rl .mono { font-size: 9px; }
+  .rest .rl b { font-size: 12px; }
+  .chips { gap: 2px 12px; }
+  .rest[data-sz="l"] .chip .num { font-size: 34px; } .rest[data-sz="l"] .chip .name { font-size: 12px; } .rest[data-sz="l"] .chips { gap: 4px 18px; }
+  .rest[data-sz="m"] .chip .num { font-size: 28px; } .rest[data-sz="m"] .chip .name { font-size: 11px; } .rest[data-sz="m"] .chips { gap: 2px 14px; }
+  .rest[data-sz="s"] .chip .num { font-size: 22px; } .rest[data-sz="s"] .chip .name { font-size: 10px; } .rest[data-sz="s"] .chips { gap: 0 10px; }
+  .rest[data-sz="xs"] .chip .num { font-size: 18px; } .rest[data-sz="xs"] .chip .name { font-size: 10px; } .rest[data-sz="xs"] .chips { gap: 0 8px; }
+  .bar { gap: 6px 8px; }
+  .actions { gap: 6px; }
+  .panel { padding: 12px; }
+  /* 指で押しやすい大きさ（約44px） */
+  .tabs button { padding: 6px 12px; min-height: 42px; }
+  .btn, .seg button, .stepper button { min-height: 44px; }
+  .btn { padding: 6px 13px; }
+  .btn.sm { min-height: 38px; padding: 4px 12px; }
+  .stepper button { min-width: 44px; }
+  .seg button { padding: 6px 10px; }
+  .prow .st button { min-height: 42px; padding: 4px 11px; }
+  .prow .del { min-width: 44px; min-height: 44px; }
+  .prow .chk { padding: 12px; margin: -12px; }
+  .prow .chk input { width: 22px; height: 22px; }
+  .sug button { min-height: 40px; }
+  /* 16px未満の入力欄は、iPhoneで触れたときに画面が拡大されてしまう */
+  .inp, input, select { font-size: 16px; }
+  /* 「次のラウンド」などを、親指が届く画面の下に置く */
+  #v-display .courts { order: 1; }
+  #v-display .rest { order: 2; }
+  #v-display .empty { order: 1; }
+  #v-display .actions { order: 3; }
+  #courtStep { display: none; }
+  .courts[data-dense] .pair .tm { display: none; }
+}
+
+/* ---------- motion: 背景の浮遊パーティクル + ペア枠を周回する光 ---------- */
+#fxCanvas { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+html[data-motion="off"] #fxCanvas { display: none; }
+@property --ang { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .court.enter { animation: courtIn .55s cubic-bezier(.2, .7, .2, 1) both; animation-delay: calc(var(--i) * 90ms); }
+  .court.enter .num { animation: numFlicker .6s steps(1) both; animation-delay: calc(var(--i) * 90ms + 150ms); }
+  html:not([data-motion="off"]) .pair::after {
+    content: ""; position: absolute; inset: -1px; border-radius: inherit; padding: 2px; pointer-events: none;
+    background: conic-gradient(from var(--ang), transparent 0 62%, color-mix(in srgb, var(--c) 40%, transparent) 78%, #fff 86%, var(--c) 88%, transparent 96%);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor; mask-composite: exclude;
+    animation: spin 4.5s linear infinite;
+    filter: drop-shadow(0 0 6px var(--c));
+  }
+  html:not([data-motion="off"]) .pair.b::after { animation-direction: reverse; }
+}
+@keyframes courtIn {
+  0% { opacity: 0; transform: translateX(-14px); filter: brightness(2.2); }
+  60% { opacity: 1; filter: brightness(1.3); }
+  100% { opacity: 1; transform: none; filter: none; }
+}
+@keyframes numFlicker {
+  0% { opacity: 0; } 20% { opacity: 1; } 30% { opacity: .2; } 45% { opacity: 1; } 55% { opacity: .5; } 70%, 100% { opacity: 1; }
+}
+@keyframes spin { to { --ang: 360deg; } }
+</style>
+</head>
+<body>
+<canvas id="fxCanvas" aria-hidden="true"></canvas>
+
+<div class="app" id="app">
+  <header class="top">
+    <div class="stat"><span class="k mono">Round</span><span class="v" id="roundNo">00</span></div>
+    <button class="stat timer" id="timer" hidden title="タップで開始／一時停止"><span class="k mono">Time</span><span class="v" id="timerVal">08:00</span></button>
+    <div class="legend mono">
+      <span style="--c: var(--pair-a)"><i></i>Team A</span>
+      <span style="--c: var(--pair-b)"><i></i>Team B</span>
+    </div>
+  </header>
+
+  <nav class="bar" id="bar">
+    <div class="tabs" id="tabs">
+      <button data-view="display">発表</button>
+      <button data-view="players">参加者</button>
+      <button data-view="settings">設定</button>
+    </div>
+    <span class="sync" id="syncBadge"></span>
+    <button class="btn danger" id="endBtn" hidden>練習会を終了</button>
+  </nav>
+
+  <!-- 練習会がまだ始まっていないとき -->
+  <section class="view scroll" id="v-start" hidden>
+    <div class="panel">
+      <h2 class="mono">New session</h2>
+      <div class="row">
+        <label class="fld">日付<input class="inp" type="date" id="startDate"></label>
+        <label class="fld">コート数
+          <span class="stepper"><button data-act="start-courts" data-d="-1" aria-label="減らす">−</button><output id="startCourts">3面</output><button data-act="start-courts" data-d="1" aria-label="増やす">＋</button></span>
+        </label>
+        <button class="btn primary" id="startBtn">練習会を始める</button>
+      </div>
+      <p class="note" id="startNote"></p>
+    </div>
+    <div class="panel" id="startResult" hidden></div>
+  </section>
+
+  <!-- 発表画面 -->
+  <section class="view" id="v-display" hidden>
+    <div class="actions" id="dispActions">
+      <button class="btn primary" id="nextBtn">次のラウンド</button>
+      <span id="timerCtl" hidden>
+        <button class="btn" id="timerGo">▶ スタート</button>
+        <button class="btn" id="timerReset" aria-label="タイマーを戻す">↺</button>
+      </span>
+      <span class="stepper" id="courtStep"><button data-act="courts" data-d="-1" aria-label="コートを減らす">−</button><output id="courtOut">3面</output><button data-act="courts" data-d="1" aria-label="コートを増やす">＋</button></span>
+      <span class="spacer"></span>
+      <button class="btn" id="redoBtn">このラウンドを作り直す</button>
+      <button class="btn" id="cleanBtn" title="操作ボタンを隠して、発表画面だけにする">操作を隠す</button>
+    </div>
+    <div class="empty" id="emptyDisp" hidden>
+      <div class="big" id="emptyBig">ROUND 00</div>
+      <div id="emptyMsg">参加者を登録して、「次のラウンド」を押してください。</div>
+      <button class="btn" data-view="players">参加者の画面へ</button>
+    </div>
+    <main class="courts" id="courts"></main>
+    <section class="rest" id="rest">
+      <div class="rl"><span class="mono">Rest</span><b>休憩</b></div>
+      <div class="chips" id="chips"></div>
+    </section>
+  </section>
+
+  <!-- 参加者 -->
+  <section class="view scroll" id="v-players" hidden>
+    <div class="panel">
+      <h2 class="mono">Add player</h2>
+      <form class="addform" id="addForm" autocomplete="off">
+        <input class="inp no" id="addNo" inputmode="numeric" pattern="[0-9]*" aria-label="番号" placeholder="番号">
+        <input class="inp nm" id="addName" aria-label="名前" placeholder="名前" enterkeyhint="done">
+        <button class="btn primary" type="submit">追加</button>
+      </form>
+      <div class="sug" id="sug"></div>
+    </div>
+
+    <div class="summary" id="psummary"></div>
+    <div class="actions">
+      <button class="btn primary" id="goBtn">ラウンド1を作る（発表画面へ）</button>
+      <span class="note" id="pnext"></span>
+    </div>
+    <p class="note">「1回休み」は、次の1ラウンドだけ休憩に入って、自動で参加に戻ります。「帰宅」は、これ以降の組み合わせに入りません。</p>
+
+    <div class="panel" id="pairPanel">
+      <h2 class="mono">Fixed pairs ・ 固定ペア</h2>
+      <div class="pairs" id="pairs"></div>
+      <div class="pairbar" id="pairbar"></div>
+    </div>
+
+    <div class="plist" id="plist"></div>
+
+  </section>
+
+  <!-- 設定 -->
+  <section class="view scroll" id="v-settings" hidden>
+    <div class="panel" id="sessionPanel" hidden>
+      <h2 class="mono">Today's session ・ 今日の練習会</h2>
+      <p class="note" id="sessionInfo" style="font-size:14px;color:var(--name)"></p>
+      <div class="row">
+        <label class="fld">コート数（次のラウンドから）
+          <span class="stepper"><button data-act="courts" data-d="-1" aria-label="コートを減らす">−</button><output id="setCourtOut">3面</output><button data-act="courts" data-d="1" aria-label="コートを増やす">＋</button></span>
+        </label>
+      </div>
+    </div>
+    <div class="cols2">
+      <div class="panel">
+        <h2 class="mono">Google Sheets</h2>
+        <label class="fld">スプレッドシートのURL（Apps Script のウェブアプリURL）
+          <input class="inp" type="url" id="sheetUrl" placeholder="https://script.google.com/macros/s/…/exec" autocomplete="off" spellcheck="false">
+        </label>
+        <div class="actions">
+          <button class="btn" id="testBtn">接続テスト・読み込み</button>
+          <button class="btn" id="pushBtn">未送信を送る</button>
+        </div>
+        <p class="note" id="sheetNote"></p>
+      </div>
+      <div class="panel">
+        <h2 class="mono">Display</h2>
+        <div class="row">
+          <label class="fld">動き
+            <span class="seg" id="motionSeg"><button data-v="1">オン</button><button data-v="0">オフ</button></span>
+          </label>
+        </div>
+        <div class="row">
+          <label class="fld">タイマー
+            <span class="seg" id="timerSeg"><button data-v="1">オン</button><button data-v="0">オフ</button></span>
+          </label>
+          <label class="fld">1ラウンドの時間
+            <span class="seg" id="minsSeg"><button data-v="5">5分</button><button data-v="7">7分</button><button data-v="8">8分</button><button data-v="10">10分</button></span>
+          </label>
+          <label class="fld">音（残り1分・終了）
+            <span class="seg" id="soundSeg"><button data-v="1">オン</button><button data-v="0">オフ</button></span>
+          </label>
+        </div>
+        <p class="note">タイマーは、ラウンドを発表したあとに「スタート」を押すと動き出します。</p>
+        <div class="row">
+          <label class="fld">1番の人を、コート1のチームAに固定する
+            <span class="seg" id="pinSeg"><button data-v="1">固定する</button><button data-v="0">しない</button></span>
+          </label>
+        </div>
+        <p class="note">固定しても、誰と組むか・誰と対戦するか・誰が休憩になるかの乱数は変わりません。次のラウンドから反映されます。</p>
+      </div>
+      <div class="panel">
+        <h2 class="mono">Backup</h2>
+        <div class="actions">
+          <button class="btn" id="exportBtn">バックアップを書き出す</button>
+          <label class="btn" for="importFile" style="cursor:pointer">バックアップを読み込む</label>
+          <input type="file" id="importFile" accept="application/json,.json" hidden>
+        </div>
+        <p class="note">参加の記録と、まとめた名前をファイルに保存します。ネットにつながらないときの控えにもなります。</p>
+      </div>
+    </div>
+
+    <!-- 過去の参加者（普段は閉じておく） -->
+    <details class="panel fold" id="rosterPanel">
+      <summary class="mono">Roster ・ 名簿と参加回数（名前のまとめ）</summary>
+      <div class="actions">
+        <button class="btn" id="mergeBtn" disabled>選んだ名前をまとめる</button>
+        <button class="btn" id="csvBtn">CSVで書き出す</button>
+        <span class="note" id="statsNote"></span>
+      </div>
+      <div class="tablewrap"><table id="statsTable"></table></div>
+      <div id="aliasPanel" hidden>
+        <h2 class="mono" style="margin:0 0 8px;font-size:11px;color:var(--muted);font-weight:500">Merged names ・ まとめた名前</h2>
+        <div class="pairs" id="aliasList"></div>
+      </div>
+    </details>
+  </section>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+<div class="modal" id="modal" hidden></div>
+
+<script src="matcher.js?v=4"></script>
+<script src="core.js?v=4"></script>
+<script src="app.js?v=4"></script>
+</body>
+</html>
