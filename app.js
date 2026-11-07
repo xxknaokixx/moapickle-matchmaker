@@ -689,12 +689,15 @@
   async function onEndSession() {
     const s = S();
     const noRounds = s.rounds.length === 0;
-    const buttons = [{ label: 'キャンセル', value: 'cancel' }];
-    if (noRounds) buttons.push({ label: '記録せずに終了', value: 'discard', kind: 'danger' });
-    buttons.push({ label: noRounds ? 'それでも記録して終了' : '終了して記録する', value: 'save', kind: 'primary' });
+    // 試しに使っただけのときは、「記録せずに終了」で、名簿にも参加回数にも残さずに終われる
+    const buttons = [
+      { label: 'キャンセル', value: 'cancel' },
+      { label: '記録せずに終了（試しのとき）', value: 'discard', kind: 'danger' },
+      { label: noRounds ? 'それでも記録して終了' : '終了して記録する', value: 'save', kind: 'primary' },
+    ];
     const r = await dialog({
       title: '練習会を終了しますか？',
-      text: (noRounds ? 'まだラウンドを1回も作っていません。' : `${s.players.length}人の参加と、${s.rounds.length}ラウンド分を記録します。${sheetUrl() ? 'スプレッドシートにも送ります。' : ''}`) + '終了すると、今日の組み合わせは元に戻せません。',
+      text: (noRounds ? 'まだラウンドを1回も作っていません。' : `${s.players.length}人の参加と、${s.rounds.length}ラウンド分を記録します。${sheetUrl() ? 'スプレッドシートにも送ります。' : ''}`) + '終了すると、今日の組み合わせは元に戻せません。試しに使っただけなら、「記録せずに終了」を選んでください。',
       buttons,
       focus: 0,
     });
