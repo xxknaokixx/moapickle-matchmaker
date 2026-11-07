@@ -1,8 +1,8 @@
 /* 会場の電波が不安定でも開けるように、アプリ本体を端末にためておく */
 // ファイルを更新したら、VERSION と index.html の ?v= を同時に上げる（古い app.js と新しい index.html が混ざらないようにするため）
-const VERSION = '8';
+const VERSION = '10';
 const CACHE = 'mm-v' + VERSION;
-const CORE = ['./', 'index.html', 'matcher.js?v=' + VERSION, 'core.js?v=' + VERSION, 'app.js?v=' + VERSION, 'manifest.webmanifest', 'icon.svg'];
+const CORE = ['./', 'index.html', 'matcher.js?v=' + VERSION, 'core.js?v=' + VERSION, 'app.js?v=' + VERSION, 'manifest.webmanifest', 'icon.svg', 'icon-180.png', 'icon-192.png', 'icon-512.png', 'icon-maskable-512.png'];
 
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(CORE)).then(() => self.skipWaiting()));
@@ -39,6 +39,9 @@ self.addEventListener('fetch', (e) => {
   }
 
   if (url.origin !== location.origin) return;
+
+  // 導入の手順書は、アプリとは別。キャッシュに触れず、いつもサーバーから開く（オフラインで手順書を開いたつもりがアプリが出る、を防ぐ）
+  if (url.pathname.endsWith('/guide.html')) return;
 
   // アプリ本体: ネットが速ければ最新、遅い・つながらないときは端末の控えを使う
   // （?v= 付きのファイルは版ごとに別のキャッシュなので、版の違うものが混ざらない）

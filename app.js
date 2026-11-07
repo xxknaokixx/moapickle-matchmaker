@@ -1044,10 +1044,6 @@
   }
 
   function boot() {
-    // 手順書から開いたとき（ブラウザで）だけ、「手順書にもどる」を出す。ホーム画面のアプリとして開いたときは出さない
-    const standalone = window.navigator.standalone === true || matchMedia('(display-mode: standalone)').matches;
-    const fromGuide = /[?&]from=guide\b/.test(location.search) || /\/guide\.html/.test(document.referrer || '');
-    if (fromGuide && !standalone) $('#guideBack').hidden = false;
     bind();
     applyMotion();
     timer.left = timerFull();
