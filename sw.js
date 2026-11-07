@@ -1,6 +1,6 @@
 /* 会場の電波が不安定でも開けるように、アプリ本体を端末にためておく */
 // ファイルを更新したら、VERSION と index.html の ?v= を同時に上げる（古い app.js と新しい index.html が混ざらないようにするため）
-const VERSION = '6';
+const VERSION = '8';
 const CACHE = 'mm-v' + VERSION;
 const CORE = ['./', 'index.html', 'matcher.js?v=' + VERSION, 'core.js?v=' + VERSION, 'app.js?v=' + VERSION, 'manifest.webmanifest', 'icon.svg'];
 
@@ -48,7 +48,8 @@ self.addEventListener('fetch', (e) => {
       const fallback = () => caches.match(req).then((hit) => hit || (req.mode === 'navigate' ? caches.match('index.html') : undefined));
       const give = (res) => { if (!settled && res) { settled = true; resolve(res); } };
       const timer = setTimeout(() => { fallback().then(give); }, 2500);
-      fetch(req).then((res) => {
+      // ブラウザの一時保存（GitHub Pagesは約10分）に頼らず、毎回サーバーに「変わっていないか」を確かめる（変わっていなければ速い）
+      fetch(req, { cache: 'no-cache' }).then((res) => {
         clearTimeout(timer);
         if (res.ok) {
           const copy = res.clone();
