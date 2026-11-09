@@ -289,6 +289,27 @@ body.clean .bar { display: none; }
 body.clean .actions > :not(#cleanBtn) { display: none; }
 body.clean #cleanBtn { margin-left: auto; }
 
+
+/* コートの向き: 横並び（左からコート1,2,3。各コートは上にチームA、下にチームB） */
+.courts[data-dir="h"] { grid-auto-flow: row; grid-template-columns: repeat(var(--hcols, 3), minmax(0, 1fr)); grid-template-rows: repeat(var(--hrows, 1), minmax(0, 1fr)); }
+.courts[data-dir="h"] .ci { grid-template-columns: minmax(0, 1fr); grid-template-rows: 14cqh minmax(0, 1fr) 5cqh minmax(0, 1fr); padding: 0 1.6cqw 2cqh; }
+.courts[data-dir="h"] .label { flex-direction: row; gap: 1.5cqw; border-right: 0; border-bottom: 1px solid var(--edge); margin: 0 -1.6cqw 1.5cqh; }
+.courts[data-dir="h"] .label .lt { font-size: max(9px, min(4cqh, 4.5cqw)); }
+.courts[data-dir="h"] .label .ln { font-size: min(10cqh, 14cqw); }
+.courts[data-dir="h"] .pair { height: auto; align-self: stretch; }
+.courts[data-dir="h"] .pair .tm { font-size: max(9px, min(3.4cqh, 3.6cqw)); top: 1cqh; left: 1.5cqw; }
+.courts[data-dir="h"] .vs { font-size: max(9px, min(4cqh, 4.5cqw)); align-self: center; }
+.courts[data-dir="h"] .num { font-size: min(11cqh, 15cqw); }
+.courts[data-dir="h"] .name { font-size: min(7cqh, 8.5cqw); }
+@media (max-width: 720px) {
+  .courts[data-dir="h"] .ci { grid-template-rows: 11cqh minmax(0, 1fr) 4cqh minmax(0, 1fr); }
+  .courts[data-dir="h"] .pair { flex-direction: column; justify-content: space-evenly; }
+  .courts[data-dir="h"] .num { font-size: min(7cqh, 22cqw); }
+  .courts[data-dir="h"] .name { font-size: min(4.2cqh, 11cqw); }
+  .courts[data-dir="h"] .label .ln { font-size: min(8cqh, 18cqw); }
+  .courts[data-dir="h"] .pair .tm { display: none; }
+}
+
 /* ---------- phone ---------- */
 @media (max-width: 720px) {
   .ci { grid-template-columns: 10cqw minmax(0, 1fr) 4.4cqw minmax(0, 1fr); padding-right: 1.4cqw; }
@@ -420,6 +441,7 @@ html[data-motion="off"] #fxCanvas { display: none; }
       </span>
       <span class="stepper" id="courtStep"><button data-act="courts" data-d="-1" aria-label="コートを減らす">−</button><output id="courtOut">3面</output><button data-act="courts" data-d="1" aria-label="コートを増やす">＋</button></span>
       <span class="spacer"></span>
+      <button class="btn" id="dirBtn" title="コートを、上から並べるか、左から並べるかを切り替える">向き：縦 ⇄ 横</button>
       <button class="btn" id="redoBtn">このラウンドを作り直す</button>
       <button class="btn" id="cleanBtn" title="操作ボタンを隠して、発表画面だけにする">操作を隠す</button>
     </div>
@@ -544,8 +566,8 @@ html[data-motion="off"] #fxCanvas { display: none; }
 <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 <div class="modal" id="modal" hidden></div>
 
-<script src="matcher.js?v=11"></script>
-<script src="core.js?v=11"></script>
-<script src="app.js?v=11"></script>
+<script src="matcher.js?v=12"></script>
+<script src="core.js?v=12"></script>
+<script src="app.js?v=12"></script>
 </body>
 </html>

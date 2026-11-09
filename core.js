@@ -56,7 +56,7 @@
   function defaults() {
     return {
       v: 2,
-      cfg: { sheetUrl: '', motion: true, courts: 3, timerOn: false, mins: 8, sound: true, pinFirst: true },
+      cfg: { sheetUrl: '', motion: true, courts: 3, timerOn: false, mins: 8, sound: true, pinFirst: true, dir: 'v' },
       session: null, // 今日の練習会
       history: [], // 終了した練習会 {id,date,courts,rounds,attendees:[{no,name}],synced}
       aliases: mkAliases(), // まとめた名前 {元の名前: まとめ先}
@@ -155,6 +155,7 @@
       mins: [5, 7, 8, 10].includes(+c.mins) ? +c.mins : 8,
       sound: c.sound !== false,
       pinFirst: c.pinFirst !== false,
+      dir: c.dir === 'h' ? 'h' : 'v',
     };
     const aliases = mkAliases(s.aliases);
     const ap = s.aliasPending && typeof s.aliasPending === 'object' ? s.aliasPending : {};

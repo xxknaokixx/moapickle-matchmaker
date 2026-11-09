@@ -372,7 +372,13 @@
     courtsEl.style.setProperty('--cols', cols);
     courtsEl.style.setProperty('--rows', Math.ceil(n / cols));
     courtsEl.style.setProperty('--n', n);
-    courtsEl.toggleAttribute('data-dense', n >= 5); // 面が多いスマホ表示では、枠が低いので小さなラベルを省く
+    const hz = state.cfg.dir === 'h';
+    courtsEl.dataset.dir = hz ? 'h' : 'v';
+    const hcols = n >= 7 ? Math.ceil(n / 2) : n;
+    courtsEl.style.setProperty('--hcols', hcols);
+    courtsEl.style.setProperty('--hrows', Math.ceil(n / hcols));
+    $('#dirBtn').textContent = hz ? '向き：横（左から）' : '向き：縦（上から）';
+    courtsEl.toggleAttribute('data-dense', n >= 5 && !hz); // 面が多いスマホ表示では、枠が低いので小さなラベルを省く
     const enter = ui.animate ? ' enter' : '';
     courtsEl.innerHTML = r.games.map((g, i) => `
       <section class="court${enter}" style="--i:${i}" aria-label="コート${i + 1}"><div class="ci">
@@ -927,6 +933,7 @@
 
     // タイマー
     $('#timer').addEventListener('click', timerToggle);
+    $('#dirBtn').addEventListener('click', () => { state.cfg.dir = state.cfg.dir === 'h' ? 'v' : 'h'; save(); renderDisplay(); });
     $('#timerGo').addEventListener('click', timerToggle);
     $('#timerReset').addEventListener('click', timerReset);
 
