@@ -101,6 +101,7 @@ label.fld { display: flex; flex-direction: column; gap: 4px; font-size: 12px; co
 .view.scroll { overflow-y: auto; overflow-x: hidden; padding-bottom: 8px; -webkit-overflow-scrolling: touch; }
 .actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
 .actions .spacer { flex: 1; }
+#nextBtn { font-size: 22px; padding: 14px 44px; min-height: 60px; letter-spacing: .04em; }
 .stepper { display: inline-flex; align-items: center; border: 1px solid var(--ctrl-edge); border-radius: 3px; overflow: hidden; }
 .stepper button { background: none; border: 0; padding: 6px 11px; cursor: pointer; font-weight: 700; }
 .stepper output { min-width: 4.6em; text-align: center; font-size: 13px; color: var(--name); }
@@ -163,11 +164,11 @@ label.fld { display: flex; flex-direction: column; gap: 4px; font-size: 12px; co
 .vs { text-align: center; color: var(--muted); font-size: max(10px, min(10cqh, 1.6cqw)); }
 .p { display: flex; flex-direction: column; align-items: center; min-width: 0; }
 .num {
-  font-family: var(--font-num); font-weight: 700; font-size: min(60cqh, 9.6cqw); line-height: .95;
+  font-family: var(--font-num); font-weight: 700; font-size: min(42cqh, 6.6cqw); line-height: .95;
   font-variant-numeric: tabular-nums;
   text-shadow: 0 0 22px color-mix(in srgb, var(--c, #fff) 45%, transparent);
 }
-.name { font-size: min(14cqh, 2.8cqw); font-weight: 700; color: var(--name); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; min-height: 1.2em; }
+.name { font-size: min(22cqh, 4.2cqw); font-weight: 700; color: var(--name); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; min-height: 1.2em; }
 
 .rest {
   display: flex; align-items: center; gap: 16px;
@@ -176,17 +177,17 @@ label.fld { display: flex; flex-direction: column; gap: 4px; font-size: 12px; co
   border-radius: 4px; padding: 8px 14px;
 }
 .rest .rl { display: flex; flex-direction: column; gap: 2px; white-space: nowrap; }
-.rest .rl .mono { font-size: 11px; color: var(--muted); }
-.rest .rl b { font-size: 15px; color: var(--name); }
+.rest .rl .mono { font-size: 15px; color: var(--muted); }
+.rest .rl b { font-size: 22px; color: var(--name); }
 .chips { display: flex; flex-wrap: wrap; gap: 6px 20px; min-width: 0; }
 .chip { display: flex; flex-direction: column; align-items: center; }
-.chip .num { font-size: 32px; color: var(--line); text-shadow: none; }
-.chip .name { font-size: 13px; }
+.chip .num { font-size: 26px; color: var(--line); text-shadow: none; }
+.chip .name { font-size: 18px; }
 /* 休憩の人数に合わせて、番号と名前の大きさを変える（少ないときは大きく） */
-.rest[data-sz="l"] .chip .num { font-size: 48px; } .rest[data-sz="l"] .chip .name { font-size: 17px; } .rest[data-sz="l"] .chips { gap: 8px 30px; }
-.rest[data-sz="m"] .chip .num { font-size: 40px; } .rest[data-sz="m"] .chip .name { font-size: 15px; } .rest[data-sz="m"] .chips { gap: 6px 24px; }
-.rest[data-sz="s"] .chip .num { font-size: 30px; } .rest[data-sz="s"] .chip .name { font-size: 13px; } .rest[data-sz="s"] .chips { gap: 4px 14px; }
-.rest[data-sz="xs"] .chip .num { font-size: 24px; } .rest[data-sz="xs"] .chip .name { font-size: 12px; } .rest[data-sz="xs"] .chips { gap: 2px 12px; }
+.rest[data-sz="l"] .chip .num { font-size: 36px; } .rest[data-sz="l"] .chip .name { font-size: 26px; } .rest[data-sz="l"] .chips { gap: 8px 30px; }
+.rest[data-sz="m"] .chip .num { font-size: 30px; } .rest[data-sz="m"] .chip .name { font-size: 22px; } .rest[data-sz="m"] .chips { gap: 6px 24px; }
+.rest[data-sz="s"] .chip .num { font-size: 24px; } .rest[data-sz="s"] .chip .name { font-size: 18px; } .rest[data-sz="s"] .chips { gap: 4px 14px; }
+.rest[data-sz="xs"] .chip .num { font-size: 20px; } .rest[data-sz="xs"] .chip .name { font-size: 15px; } .rest[data-sz="xs"] .chips { gap: 2px 12px; }
 
 .empty {
   flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; text-align: center;
@@ -297,8 +298,8 @@ body.clean #cleanBtn { margin-left: auto; }
   .pair { height: min(86cqh, 36cqw); }
   .pair .tm { font-size: max(8px, min(7cqh, 2.1cqw)); }
   .vs { font-size: max(9px, min(10cqh, 2.6cqw)); }
-  .num { font-size: min(60cqh, 12cqw); }
-  .name { font-size: min(14cqh, 3.4cqw); }
+  .num { font-size: min(44cqh, 9cqw); }
+  .name { font-size: min(22cqh, 5.2cqw); }
   .app { gap: 6px; padding-top: max(6px, env(safe-area-inset-top, 0px)); padding-bottom: max(6px, env(safe-area-inset-bottom, 0px)); }
   .top { gap: 4px 16px; padding-bottom: 4px; }
   .stat .k { font-size: 10px; }
@@ -307,13 +308,13 @@ body.clean #cleanBtn { margin-left: auto; }
   .courts { gap: 6px; grid-template-columns: minmax(0, 1fr); grid-template-rows: repeat(var(--n, 3), minmax(0, 1fr)); }
   .court::before, .court::after { width: 9px; height: 9px; }
   .rest { gap: 10px; padding: 5px 10px; }
-  .rest .rl .mono { font-size: 9px; }
-  .rest .rl b { font-size: 12px; }
+  .rest .rl .mono { font-size: 11px; }
+  .rest .rl b { font-size: 15px; }
   .chips { gap: 2px 12px; }
-  .rest[data-sz="l"] .chip .num { font-size: 34px; } .rest[data-sz="l"] .chip .name { font-size: 12px; } .rest[data-sz="l"] .chips { gap: 4px 18px; }
-  .rest[data-sz="m"] .chip .num { font-size: 28px; } .rest[data-sz="m"] .chip .name { font-size: 11px; } .rest[data-sz="m"] .chips { gap: 2px 14px; }
-  .rest[data-sz="s"] .chip .num { font-size: 22px; } .rest[data-sz="s"] .chip .name { font-size: 10px; } .rest[data-sz="s"] .chips { gap: 0 10px; }
-  .rest[data-sz="xs"] .chip .num { font-size: 18px; } .rest[data-sz="xs"] .chip .name { font-size: 10px; } .rest[data-sz="xs"] .chips { gap: 0 8px; }
+  .rest[data-sz="l"] .chip .num { font-size: 26px; } .rest[data-sz="l"] .chip .name { font-size: 16px; } .rest[data-sz="l"] .chips { gap: 4px 18px; }
+  .rest[data-sz="m"] .chip .num { font-size: 22px; } .rest[data-sz="m"] .chip .name { font-size: 14px; } .rest[data-sz="m"] .chips { gap: 2px 14px; }
+  .rest[data-sz="s"] .chip .num { font-size: 18px; } .rest[data-sz="s"] .chip .name { font-size: 12px; } .rest[data-sz="s"] .chips { gap: 0 10px; }
+  .rest[data-sz="xs"] .chip .num { font-size: 15px; } .rest[data-sz="xs"] .chip .name { font-size: 11px; } .rest[data-sz="xs"] .chips { gap: 0 8px; }
   .bar { gap: 6px 8px; }
   .actions { gap: 6px; }
   .panel { padding: 12px; }
@@ -337,6 +338,7 @@ body.clean #cleanBtn { margin-left: auto; }
   #v-display .empty { order: 1; }
   #v-display .actions { order: 3; }
   #courtStep { display: none; }
+  #nextBtn { flex: 1 1 100%; font-size: 20px; min-height: 58px; }
   .courts[data-dense] .pair .tm { display: none; }
 }
 
@@ -542,8 +544,8 @@ html[data-motion="off"] #fxCanvas { display: none; }
 <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 <div class="modal" id="modal" hidden></div>
 
-<script src="matcher.js?v=10"></script>
-<script src="core.js?v=10"></script>
-<script src="app.js?v=10"></script>
+<script src="matcher.js?v=11"></script>
+<script src="core.js?v=11"></script>
+<script src="app.js?v=11"></script>
 </body>
 </html>

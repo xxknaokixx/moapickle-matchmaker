@@ -1,6 +1,6 @@
 /* 会場の電波が不安定でも開けるように、アプリ本体を端末にためておく */
 // ファイルを更新したら、VERSION と index.html の ?v= を同時に上げる（古い app.js と新しい index.html が混ざらないようにするため）
-const VERSION = '10';
+const VERSION = '11';
 const CACHE = 'mm-v' + VERSION;
 const CORE = ['./', 'index.html', 'matcher.js?v=' + VERSION, 'core.js?v=' + VERSION, 'app.js?v=' + VERSION, 'manifest.webmanifest', 'icon.svg', 'icon-180.png', 'icon-192.png', 'icon-512.png', 'icon-maskable-512.png'];
 
